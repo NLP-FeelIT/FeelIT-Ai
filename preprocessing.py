@@ -1,3 +1,5 @@
+!pip install git+https://git@github.com/SKTBrain/KoBERT.git@master
+
 !pip install mxnet
 !pip install gluonnlp==0.8.0
 !pip install tqdm pandas
