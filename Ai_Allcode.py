@@ -83,6 +83,50 @@ print(data_list[40000])
 print(data_list[80000])
 print(data_list[-1])
 
+from sklearn.utils import class_weight
+from collections import Counter
+'''
+num_0, num_1, num_2, num_3, num_4, num_5, num_6 = 0, 0, 0, 0, 0, 0, 0
+
+for sentence, label in data_list:
+  if label == '0':
+    num_0 += 1
+  elif label == '1':
+    num_1 += 1
+  elif label == '2':
+    num_2 += 1
+  elif label == '3':
+    num_3 += 1
+  elif label == '4':
+    num_4 += 1
+  elif label == '5':
+    num_5 += 1
+  elif label == '6':
+    num_6 += 1
+
+print(num_0)
+print(num_1)
+print(num_2)
+print(num_3)
+print(num_4)
+print(num_5)
+print(num_6)
+'''
+
+label_list = []
+for i in range(len(data_list)):
+  label_list.append(data_list[i][1])
+
+print(label_list)
+print(Counter(np.array(label_list)))
+
+#weights = [1 - (x / sum(sample_list)) for x in sample_list]
+#weights = torch.FloatTensor(weights).to(device)
+weights = class_weight.compute_class_weight(class_weight='balanced', classes=np.unique(label_list), y=np.array(label_list))
+weights=torch.tensor(weights, dtype=torch.float).to(device)
+
+print(weights)
+
 ## Setting parameters
 max_len = 64
 batch_size = 64
@@ -345,7 +389,7 @@ optimizer_grouped_parameters = [
     {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
 ]
 optimizer = AdamW(optimizer_grouped_parameters, lr=learning_rate)
-loss_fn = nn.CrossEntropyLoss()
+loss_fn = nn.CrossEntropyLoss(weights)
 t_total = len(train_dataloader) * num_epochs
 warmup_step = int(t_total * warmup_ratio)
 scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=warmup_step, num_training_steps=t_total)
